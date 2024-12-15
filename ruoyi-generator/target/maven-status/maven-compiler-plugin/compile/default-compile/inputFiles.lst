@@ -1,0 +1,13 @@
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/util/VelocityUtils.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/service/impl/GenTableServiceImpl.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/config/GenConfig.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/controller/GenController.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/domain/GenTable.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/mapper/GenTableMapper.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/service/impl/GenTableColumnServiceImpl.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/domain/GenTableColumn.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/util/GenUtils.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/mapper/GenTableColumnMapper.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/service/IGenTableColumnService.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/util/VelocityInitializer.java
+/Users/linhongfei/mes/RuoYi-v4.7.9/ruoyi-generator/src/main/java/com/ruoyi/generator/service/IGenTableService.java
