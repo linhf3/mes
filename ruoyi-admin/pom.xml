@@ -67,6 +67,13 @@
             <artifactId>ruoyi-generator</artifactId>
         </dependency>
 
+        <!-- mes核心-->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-factory</artifactId>
+            <version>4.7.9</version>
+        </dependency>
+
     </dependencies>
 
     <build>
