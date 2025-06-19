@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.security.mapper.TbFluctuationLogMapper">
+    
+    <resultMap type="TbFluctuationLog" id="TbFluctuationLogResult">
+        <result property="id"    column="id"    />
+        <result property="code"    column="code"    />
+        <result property="name"    column="name"    />
+        <result property="undulate"    column="undulate"    />
+        <result property="logDate"    column="log_date"    />
+        <result property="logType"    column="log_type"    />
+    </resultMap>
+
+    <sql id="selectTbFluctuationLogVo">
+        select id, code, name, undulate, log_date, log_type from tb_fluctuation_log
+    </sql>
+
+    <select id="selectTbFluctuationLogList" parameterType="TbFluctuationLog" resultMap="TbFluctuationLogResult">
+        <include refid="selectTbFluctuationLogVo"/>
+        <where>  
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="undulate != null "> and undulate = #{undulate}</if>
+            <if test="logDate != null "> and log_date = #{logDate}</if>
+            <if test="logType != null "> and log_type = #{logType}</if>
+        </where>
+    </select>
+    
+    <select id="selectTbFluctuationLogById" parameterType="Long" resultMap="TbFluctuationLogResult">
+        <include refid="selectTbFluctuationLogVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTbFluctuationLog" parameterType="TbFluctuationLog" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_fluctuation_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="code != null">code,</if>
+            <if test="name != null">name,</if>
+            <if test="undulate != null">undulate,</if>
+            <if test="logDate != null">log_date,</if>
+            <if test="logType != null">log_type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="code != null">#{code},</if>
+            <if test="name != null">#{name},</if>
+            <if test="undulate != null">#{undulate},</if>
+            <if test="logDate != null">#{logDate},</if>
+            <if test="logType != null">#{logType},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTbFluctuationLog" parameterType="TbFluctuationLog">
+        update tb_fluctuation_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="code != null">code = #{code},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="undulate != null">undulate = #{undulate},</if>
+            <if test="logDate != null">log_date = #{logDate},</if>
+            <if test="logType != null">log_type = #{logType},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTbFluctuationLogById" parameterType="Long">
+        delete from tb_fluctuation_log where id = #{id}
+    </delete>
+
+    <delete id="deleteTbFluctuationLogByIds" parameterType="String">
+        delete from tb_fluctuation_log where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="delateAllByLogType" parameterType="Integer">
+        delete from tb_fluctuation_log where log_type = #{logType}
+    </delete>
+
+    <insert id="insertTbFluctuationLogList" parameterType="java.util.List">
+        insert into
+        tb_fluctuation_log (code,name,undulate,log_date,log_type)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.code},#{item.name},#{item.undulate},#{item.logDate},#{item.logType})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.security.mapper.TbSecuritiesDataMapper">
+    
+    <resultMap type="TbSecuritiesData" id="TbSecuritiesDataResult">
+        <result property="id"    column="id"    />
+        <result property="code"    column="code"    />
+        <result property="name"    column="name"    />
+        <result property="exchangeCode"    column="exchange_code"    />
+        <result property="deviation"    column="deviation"    />
+        <result property="undulate"    column="undulate"    />
+        <result property="type"    column="type"    />
+        <result property="status"    column="status"    />
+        <result property="addUser"    column="add_user"    />
+        <result property="addTime"    column="add_time"    />
+    </resultMap>
+
+    <sql id="selectTbSecuritiesDataVo">
+        select id, code, name, exchange_code, deviation, undulate, type, status, add_user, add_time from tb_securities_data
+    </sql>
+
+    <select id="selectTbSecuritiesDataList" parameterType="TbSecuritiesData" resultMap="TbSecuritiesDataResult">
+        <include refid="selectTbSecuritiesDataVo"/>
+        <where>  
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="deviation != null "> and deviation = #{deviation}</if>
+            <if test="undulate != null "> and undulate = #{undulate}</if>
+            <if test="type != null "> and type = #{type}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+        order by status asc
+    </select>
+    
+    <select id="selectTbSecuritiesDataById" parameterType="Long" resultMap="TbSecuritiesDataResult">
+        <include refid="selectTbSecuritiesDataVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTbSecuritiesData" parameterType="TbSecuritiesData" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_securities_data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="code != null">code,</if>
+            <if test="name != null">name,</if>
+            <if test="exchangeCode != null">exchange_code,</if>
+            <if test="deviation != null">deviation,</if>
+            <if test="undulate != null">undulate,</if>
+            <if test="type != null">type,</if>
+            <if test="status != null">status,</if>
+            <if test="addUser != null">add_user,</if>
+            <if test="addTime != null">add_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="code != null">#{code},</if>
+            <if test="name != null">#{name},</if>
+            <if test="exchangeCode != null">#{exchangeCode},</if>
+            <if test="deviation != null">#{deviation},</if>
+            <if test="undulate != null">#{undulate},</if>
+            <if test="type != null">#{type},</if>
+            <if test="status != null">#{status},</if>
+            <if test="addUser != null">#{addUser},</if>
+            <if test="addTime != null">#{addTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTbSecuritiesData" parameterType="TbSecuritiesData">
+        update tb_securities_data
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="code != null">code = #{code},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="exchangeCode != null">exchange_code = #{exchangeCode},</if>
+            <if test="deviation != null">deviation = #{deviation},</if>
+            <if test="undulate != null">undulate = #{undulate},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="addUser != null">add_user = #{addUser},</if>
+            <if test="addTime != null">add_time = #{addTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTbSecuritiesDataById" parameterType="Long">
+        delete from tb_securities_data where id = #{id}
+    </delete>
+
+    <delete id="deleteTbSecuritiesDataByIds" parameterType="String">
+        delete from tb_securities_data where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteAll" parameterType="String">
+        delete from tb_securities_data where type = 1
+    </delete>
+
+    <insert id="insertList" parameterType="java.util.List">
+        insert into
+        tb_securities_data (code,name,exchange_code,deviation,type,status,add_user,add_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.code},#{item.name},#{item.exchangeCode},#{item.deviation},#{item.type},#{item.status},
+            #{item.addUser},#{item.addTime})
+        </foreach>
+    </insert>
+
+</mapper>

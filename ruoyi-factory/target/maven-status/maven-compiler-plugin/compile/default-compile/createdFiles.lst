@@ -1,0 +1,8 @@
+com/ruoyi/factory/mapper/SysStoreMapper.class
+com/ruoyi/factory/service/impl/SysStoreServiceImpl.class
+com/ruoyi/factory/service/ISysStoreService.class
+com/ruoyi/factory/controller/SysStoreController.class
+com/ruoyi/factory/controller/SysPlcController.class
+com/ruoyi/factory/service/ISysPlcService.class
+com/ruoyi/factory/service/impl/ISysPlcServiceImpl.class
+com/ruoyi/factory/domain/SysStore.class

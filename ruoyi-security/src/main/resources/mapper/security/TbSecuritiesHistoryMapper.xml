@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.security.mapper.TbSecuritiesHistoryMapper">
+    
+    <resultMap type="TbSecuritiesHistory" id="TbSecuritiesHistoryResult">
+        <result property="id"    column="id"    />
+        <result property="code"    column="code"    />
+        <result property="name"    column="name"    />
+        <result property="data"    column="data"    />
+        <result property="logDate"    column="log_date"    />
+        <result property="logType"    column="log_type"    />
+    </resultMap>
+
+    <sql id="selectTbSecuritiesHistoryVo">
+        select id, code, name, data, log_date, log_type from tb_securities_history
+    </sql>
+
+    <select id="selectTbSecuritiesHistoryList" parameterType="TbSecuritiesHistory" resultMap="TbSecuritiesHistoryResult">
+        <include refid="selectTbSecuritiesHistoryVo"/>
+        <where>  
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="data != null  and data != ''"> and data = #{data}</if>
+            <if test="logDate != null "> and log_date = #{logDate}</if>
+            <if test="logType != null "> and log_type = #{logType}</if>
+        </where>
+    </select>
+    
+    <select id="selectTbSecuritiesHistoryById" parameterType="Long" resultMap="TbSecuritiesHistoryResult">
+        <include refid="selectTbSecuritiesHistoryVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTbSecuritiesHistory" parameterType="TbSecuritiesHistory" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_securities_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="code != null">code,</if>
+            <if test="name != null">name,</if>
+            <if test="data != null">data,</if>
+            <if test="logDate != null">log_date,</if>
+            <if test="logType != null">log_type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="code != null">#{code},</if>
+            <if test="name != null">#{name},</if>
+            <if test="data != null">#{data},</if>
+            <if test="logDate != null">#{logDate},</if>
+            <if test="logType != null">#{logType},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTbSecuritiesHistory" parameterType="TbSecuritiesHistory">
+        update tb_securities_history
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="code != null">code = #{code},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="data != null">data = #{data},</if>
+            <if test="logDate != null">log_date = #{logDate},</if>
+            <if test="logType != null">log_type = #{logType},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTbSecuritiesHistoryById" parameterType="Long">
+        delete from tb_securities_history where id = #{id}
+    </delete>
+
+    <delete id="deleteTbSecuritiesHistoryByIds" parameterType="String">
+        delete from tb_securities_history where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insertTbSecuritiesHistoryList" parameterType="java.util.List">
+        insert into
+        tb_securities_history (code,name,data,log_date,log_type)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.code},#{item.name},#{item.data},#{item.logDate},#{item.logType})
+        </foreach>
+    </insert>
+</mapper>

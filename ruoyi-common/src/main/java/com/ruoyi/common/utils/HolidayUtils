@@ -1,0 +1,37 @@
+package com.ruoyi.common.utils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ruoyi.common.enums.Constant;
+import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 判断是否是工作日
+ */
+public class HolidayUtils {
+
+    public static boolean isWorkday(String date) throws IOException {
+        Map urlMap = new HashMap<>();
+        urlMap.put("variety", date);
+        HttpGet httpGet = new HttpGet(new StrSubstitutor(urlMap).replace(Constant.HOLIDAY));
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        //发送http请求
+        HttpResponse response = httpClient.execute(httpGet);
+        String rx = EntityUtils.toString(response.getEntity());
+        ObjectMapper objectMapper = new ObjectMapper();
+        // 将JSON字符串转换为Map
+        Map<String, Object> map = objectMapper.readValue(rx, Map.class);
+        Map<String, Object> typeMap = (Map<String, Object>) map.get("type");
+        Integer type = (Integer) typeMap.get("type");
+        return 1==type;
+    }
+
+}
