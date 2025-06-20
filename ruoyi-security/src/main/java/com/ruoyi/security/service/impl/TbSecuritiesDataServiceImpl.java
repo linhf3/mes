@@ -299,6 +299,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
         try {
             TbSecuritiesData tbSecuritiesDataQeury = new TbSecuritiesData();
             tbSecuritiesDataQeury.setType(2);
+            tbSecuritiesDataQeury.setName("连续");
             List<TbSecuritiesData> tbSecuritiesSinaDataList = tbSecuritiesDataMapper.selectTbSecuritiesDataList(tbSecuritiesDataQeury);
             if (CollectionUtils.isEmpty(tbSecuritiesSinaDataList)){
                 return;
