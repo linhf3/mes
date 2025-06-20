@@ -269,7 +269,8 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
         //2、构建线程
         long startTime = System.currentTimeMillis();
         for (TbSecuritiesData tbSecuritiesData : tbSecuritiesSinaDataList) {
-            TbSecuritiesDataSinaThread tbSecuritiesDataThread = new TbSecuritiesDataSinaThread(tbSecuritiesData, coreAlgorithmContet);
+            //获取15分钟上中下
+            TbSecuritiesDataSinaThread tbSecuritiesDataThread = new TbSecuritiesDataSinaThread(tbSecuritiesData, coreAlgorithmContet, Constant.SINA_FIFTEEN_MIN_LINE);
             Future<SecuritiesSinaFutureVo> future = taskExecutor.submit(tbSecuritiesDataThread);
             futures.add(future);
         }
