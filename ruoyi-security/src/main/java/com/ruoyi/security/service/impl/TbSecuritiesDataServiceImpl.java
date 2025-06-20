@@ -366,7 +366,8 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
                 return;
             }
             for (TbSecuritiesData tbSecuritiesData : tbSecuritiesSinaDataList) {
-                TbSecuritiesDataSinaThread tbSecuritiesDataThread = new TbSecuritiesDataSinaThread(tbSecuritiesData, coreAlgorithmContet);
+                //获取15分钟上中下
+                TbSecuritiesDataSinaThread tbSecuritiesDataThread = new TbSecuritiesDataSinaThread(tbSecuritiesData, coreAlgorithmContet, Constant.SINA_FIFTEEN_MIN_LINE);
                 SecuritiesSinaFutureVo securitiesSinaFutureVo = tbSecuritiesDataThread.call();
                 List<SecuritiesSinaFutureVo> securitiesSinaListVoList = null;
                 if (CollectionUtils.isEmpty(securitiesSinaListVoList)){
