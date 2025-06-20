@@ -29,12 +29,15 @@ public class TbSecuritiesDataSinaThread implements Callable<SecuritiesSinaFuture
 
     private CoreAlgorithmContet coreAlgorithmContet;
 
+    private String url;
+
     // 定义时间格式
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public TbSecuritiesDataSinaThread(TbSecuritiesData tbSecuritiesData, CoreAlgorithmContet coreAlgorithmContet) {
+    public TbSecuritiesDataSinaThread(TbSecuritiesData tbSecuritiesData, CoreAlgorithmContet coreAlgorithmContet,String url) {
         this.tbSecuritiesData = tbSecuritiesData;
         this.coreAlgorithmContet = coreAlgorithmContet;
+        this.url = url;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class TbSecuritiesDataSinaThread implements Callable<SecuritiesSinaFuture
         urlMap.put("variety2", System.currentTimeMillis());
         urlMap.put("variety3", tbSecuritiesData.getCode());
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet(new StrSubstitutor(urlMap).replace(Constant.SINA_FIFTEEN_MIN_LINE));
+        HttpGet httpGet = new HttpGet(new StrSubstitutor(urlMap).replace(url));
         httpGet.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36");
         httpGet.setHeader("Referer", new StrSubstitutor(urlMap).replace(Constant.REFERER));
         httpGet.setHeader("Accept", "*/*");
