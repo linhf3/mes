@@ -207,16 +207,11 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
     @Override
     public List<SecuritiesFutureVo> findList() {
         //1.查询有效配置
-        List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheList("tbSecuritiesDataList");
+        List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheList("f_dongfang_tbSecuritiesDataList");
         if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
-            TbSecuritiesData tbSecuritiesData = new TbSecuritiesData();
-            tbSecuritiesData.setType(1);
-            tbSecuritiesData.setStatus(0);
-            tbSecuritiesDataList = tbSecuritiesDataMapper.selectTbSecuritiesDataList(tbSecuritiesData);
-            if (!CollectionUtils.isEmpty(tbSecuritiesDataList)){
-                redisCache.setCacheList("tbSecuritiesDataList",tbSecuritiesDataList);
-            }
+            return new ArrayList<>();
         }
+        tbSecuritiesDataList = tbSecuritiesDataList.stream().filter(t -> t.getStatus() == 0).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
             return new ArrayList<>();
         }
@@ -252,15 +247,14 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
     @Override
     public List<SecuritiesSinaFutureVo> findSinaList() {
         //1.查询有效配置
-        List<TbSecuritiesData> tbSecuritiesSinaDataList = redisCache.getCacheList("tbSecuritiesSinaDataList");
+
+        List<TbSecuritiesData> tbSecuritiesSinaDataList = redisCache.getCacheList("f_sina_tbSecuritiesDataList");
         if (CollectionUtils.isEmpty(tbSecuritiesSinaDataList)){
-            TbSecuritiesData tbSecuritiesData = new TbSecuritiesData();
-            tbSecuritiesData.setType(2);
-            tbSecuritiesData.setStatus(0);
-            tbSecuritiesSinaDataList = tbSecuritiesDataMapper.selectTbSecuritiesDataList(tbSecuritiesData);
-            if (!CollectionUtils.isEmpty(tbSecuritiesSinaDataList)){
-                redisCache.setCacheList("tbSecuritiesSinaDataList",tbSecuritiesSinaDataList);
-            }
+            return new ArrayList<>();
+        }
+        tbSecuritiesSinaDataList = tbSecuritiesSinaDataList.stream().filter(t -> t.getStatus() == 0).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(tbSecuritiesSinaDataList)){
+            return new ArrayList<>();
         }
         if (CollectionUtils.isEmpty(tbSecuritiesSinaDataList)){
             return new ArrayList<>();
@@ -398,16 +392,11 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
     @Override
     public List<SecuritiesSinaFutureVo> findDongFangFiveList() throws Exception {
         //1.查询有效配置
-        List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheList("tbSecuritiesDongFangDataList");
+        List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheList("f_dongfang_tbSecuritiesDataList");
         if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
-            TbSecuritiesData tbSecuritiesData = new TbSecuritiesData();
-            tbSecuritiesData.setType(1);
-            tbSecuritiesData.setStatus(0);
-            tbSecuritiesDataList = tbSecuritiesDataMapper.selectTbSecuritiesDataList(tbSecuritiesData);
-            if (!CollectionUtils.isEmpty(tbSecuritiesDataList)){
-                redisCache.setCacheList("tbSecuritiesDongFangDataList",tbSecuritiesDataList);
-            }
+            return new ArrayList<>();
         }
+        tbSecuritiesDataList = tbSecuritiesDataList.stream().filter(t -> t.getStatus() == 0).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
             return new ArrayList<>();
         }
@@ -459,6 +448,10 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
         return null;
     }
 
+    @Override
+    public void startMonitoringStrategy1() {
+
+    }
 
 
 }
