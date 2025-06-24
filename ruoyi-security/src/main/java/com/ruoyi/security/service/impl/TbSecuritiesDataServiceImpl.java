@@ -207,7 +207,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
     @Override
     public List<SecuritiesFutureVo> findList() {
         //1.查询有效配置
-        List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheList("f_dongfang_tbSecuritiesDataList");
+        List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheMapValue("money","f_dongfang_tbSecuritiesDataList");
         if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
             return new ArrayList<>();
         }
@@ -248,7 +248,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
     public List<SecuritiesSinaFutureVo> findSinaList() {
         //1.查询有效配置
 
-        List<TbSecuritiesData> tbSecuritiesSinaDataList = redisCache.getCacheList("f_sina_tbSecuritiesDataList");
+        List<TbSecuritiesData> tbSecuritiesSinaDataList = redisCache.getCacheMapValue("money","f_sina_tbSecuritiesDataList");
         if (CollectionUtils.isEmpty(tbSecuritiesSinaDataList)){
             return new ArrayList<>();
         }
@@ -343,7 +343,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
 
     @Override
     public List<SecuritiesSinaFutureVo> findSinaFiveList() {
-        List<SecuritiesSinaFutureVo> securitiesSinaListVoList = redisCache.getCacheList("securitiesSinaListVo");
+        List<SecuritiesSinaFutureVo> securitiesSinaListVoList = redisCache.getCacheMapValue("money","securitiesSinaListVo");
         if (CollectionUtils.isEmpty(securitiesSinaListVoList)){
             return new ArrayList<>();
         }
@@ -368,7 +368,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
                     securitiesSinaListVoList = new ArrayList<>();
                     securitiesSinaListVoList.add(securitiesSinaFutureVo);
                 }else {
-                    securitiesSinaListVoList = redisCache.getCacheList("securitiesSinaListVo");
+                    securitiesSinaListVoList = redisCache.getCacheMapValue("money","securitiesSinaListVo");
                     SecuritiesSinaFutureVo removeSecuritiesSinaFutureVo = null;
                     for (SecuritiesSinaFutureVo securitiesSinaFuture:securitiesSinaListVoList){
                         if (securitiesSinaFuture.getCode().equals(securitiesSinaFutureVo.getCode())){
@@ -381,7 +381,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
                     }
                     securitiesSinaListVoList.add(securitiesSinaFutureVo);
                 }
-                redisCache.setCacheList("securitiesSinaListVo",securitiesSinaListVoList);
+                redisCache.setCacheMapValue("money","securitiesSinaListVo",securitiesSinaListVoList);
                 Thread.sleep(10000);
             }
         }catch (Exception e){
@@ -392,7 +392,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
     @Override
     public List<SecuritiesSinaFutureVo> findDongFangFiveList() throws Exception {
         //1.查询有效配置
-        List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheList("f_dongfang_tbSecuritiesDataList");
+        List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheMapValue("money","f_dongfang_tbSecuritiesDataList");
         if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
             return new ArrayList<>();
         }
