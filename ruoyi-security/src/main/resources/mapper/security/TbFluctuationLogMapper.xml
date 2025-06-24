@@ -23,7 +23,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="code != null  and code != ''"> and code = #{code}</if>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="undulate != null "> and undulate = #{undulate}</if>
-            <if test="logDate != null "> and log_date = #{logDate}</if>
+            <if test="logDate != null "> and log_date >= #{logDate}</if>
             <if test="logType != null "> and log_type = #{logType}</if>
         </where>
     </select>
