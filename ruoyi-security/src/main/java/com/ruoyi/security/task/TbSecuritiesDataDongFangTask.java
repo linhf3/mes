@@ -5,11 +5,9 @@ import com.ruoyi.common.enums.Constant;
 import com.ruoyi.security.algorithm.CoreAlgorithmContet;
 import com.ruoyi.security.domain.TbSecuritiesData;
 import com.ruoyi.security.mapper.TbSecuritiesDataMapper;
-import com.ruoyi.security.vo.SecuritiesFutureVo;
 import com.ruoyi.security.vo.SecuritiesSinaFutureVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -19,13 +17,14 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 
-@Component("tbSecuritiesDataTask")
+@Component("tbSecuritiesDataDongFangTask")
 @Slf4j
-public class TbSecuritiesDataTask {
+public class TbSecuritiesDataDongFangTask {
 
     @Autowired
     private TbSecuritiesDataMapper tbSecuritiesDataMapper;
@@ -50,9 +49,9 @@ public class TbSecuritiesDataTask {
             LocalTime now = LocalTime.now();
             //判断是否是周末
             DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
-//            if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
-//                return;
-//            }
+            if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
+                return;
+            }
             // 定义目标时间 11:35
             LocalTime targetTime1 = LocalTime.of(9, 00);
             LocalTime targetTime2 = LocalTime.of(11, 31);
@@ -63,10 +62,15 @@ public class TbSecuritiesDataTask {
             if ((now.isAfter(targetTime1) && now.isBefore(targetTime2)) || (now.isAfter(targetTime3) && now.isBefore(targetTime4))
                     || (now.isAfter(targetTime5) && now.isBefore(targetTime6))){
                 f = true;
-                List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheMapValue("money","f_sina_tbSecuritiesDataList");
+                List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheMapValue("money","f_dongfang_tbSecuritiesDataList");
                 if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
                     return;
                 }
+                Map<String, String> dongfangMap = redisCache.getCacheMapValue("money", "f_dongfang");
+                if (CollectionUtils.isEmpty(dongfangMap)){
+                    return;
+                }
+                tbSecuritiesDataList = tbSecuritiesDataList.stream().filter(s->dongfangMap.containsKey(s.getCode())).collect(Collectors.toList());
                 long startTime = System.currentTimeMillis();
                 for (TbSecuritiesData tbSecuritiesData : tbSecuritiesDataList) {
                     TbSecuritiesDataSinaThread tbSecuritiesDataThread = new TbSecuritiesDataSinaThread(tbSecuritiesData, coreAlgorithmContet, Constant.SINA_FIFTEEN_MIN_LINE);

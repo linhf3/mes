@@ -34,6 +34,26 @@ public class SecurityLoader implements CommandLineRunner {
         if (CollectionUtils.isEmpty(tbFluctuationLogs)){
             return;
         }
+        // 分组并提取 value，然后降序排序
+        Map<String, List<Double>> sortedValuesByGroup = tbFluctuationLogs.stream()
+                .collect(Collectors.groupingBy(
+                        TbFluctuationLog::getCode,
+                        Collectors.mapping(
+                                TbFluctuationLog::getUndulate,
+                                Collectors.toList()
+                        )
+                ))
+                .entrySet().stream()
+                .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().stream()
+                        .sorted(Comparator.reverseOrder())
+                        .collect(Collectors.toList())))
+                .collect(Collectors.toMap(
+                        AbstractMap.SimpleEntry::getKey,
+                        AbstractMap.SimpleEntry::getValue
+                ));
+
+        redisCache.deleteCacheMapValue("money","sortedValuesByGroup");
+        redisCache.setCacheMapValue("money","sortedValuesByGroup",sortedValuesByGroup);
         // 分组并获取每个组降序排序后的第10个元素，最后转换为 Map<String, Double>
         Map<String, Double> minValues = tbFluctuationLogs.stream()
                 .collect(Collectors.groupingBy(
@@ -46,32 +66,38 @@ public class SecurityLoader implements CommandLineRunner {
                                 }
                         )
                 ));
+        //存到缓存中
+        redisCache.deleteCacheMapValue("money","f_xinnamin");
+        redisCache.setCacheMapValue("money","f_xinnamin",minValues);
         //查询所有的新浪数据转换为东方财富编码
         TbSecuritiesData tbSecuritiesData = new TbSecuritiesData();
-        tbSecuritiesData.setType(2);
         List<TbSecuritiesData> tbSecuritiesDataList = iTbSecuritiesDataService.selectTbSecuritiesDataList(tbSecuritiesData);
         if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
             return;
         }
-        tbSecuritiesDataList = tbSecuritiesDataList.stream().filter(t -> StringUtils.isNotEmpty(t.getExchangeCode())).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
+        List<TbSecuritiesData> tbSecuritiesDataSinaList = tbSecuritiesDataList.stream().filter(t -> 2 == t.getType() && StringUtils.isNotEmpty(t.getExchangeCode())).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(tbSecuritiesDataSinaList)){
             return;
         }
+        redisCache.deleteCacheMapValue("money","f_sina_tbSecuritiesDataList");
+        redisCache.setCacheMapValue("money","f_sina_tbSecuritiesDataList",tbSecuritiesDataSinaList);
         // 将 List 转换为 Map
-        Map<String, String> map = tbSecuritiesDataList.stream()
+        Map<String, String> map = tbSecuritiesDataSinaList.stream()
                 .collect(Collectors.toMap(
                         TbSecuritiesData::getCode, // 键
                         TbSecuritiesData::getExchangeCode // 值
                 ));
         // 将 List 转换为 Map
-        Map<String, String> xinNamap = tbSecuritiesDataList.stream()
+        Map<String, String> dongfangMap = tbSecuritiesDataSinaList.stream()
                 .collect(Collectors.toMap(
                         TbSecuritiesData::getExchangeCode, // 键
                         TbSecuritiesData::getCode // 值
                 ));
         //存到缓存中
-        redisCache.setCacheMap("f_dongfang",xinNamap);
-        redisCache.setCacheMap("f_sina",map);
+        redisCache.deleteCacheMapValue("money","f_dongfang");
+        redisCache.setCacheMapValue("money","f_dongfang",dongfangMap);
+        redisCache.deleteCacheMapValue("money","f_sina");
+        redisCache.setCacheMapValue("money","f_sina",map);
         //转换
         Map<String, Double> m = new HashMap<>();
         for (Map.Entry<String,Double> entry:minValues.entrySet()){
@@ -84,6 +110,13 @@ public class SecurityLoader implements CommandLineRunner {
             return;
         }
         //存到缓存中
-        redisCache.setCacheMap("f_recentMinValueMap",m);
+        redisCache.deleteCacheMapValue("money","f_dongfangmin");
+        redisCache.setCacheMapValue("money","f_dongfangmin",m);
+        //东方数据放入缓存
+        List<TbSecuritiesData> tbSecuritiesDataDongfangList = tbSecuritiesDataList.stream().filter(t -> 1 == t.getType()).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(tbSecuritiesDataDongfangList)){
+            redisCache.deleteCacheMapValue("money","f_dongfang_tbSecuritiesDataList");
+            redisCache.setCacheMapValue("money","f_dongfang_tbSecuritiesDataList",tbSecuritiesDataDongfangList);
+        }
     }
 }
