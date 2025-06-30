@@ -48,4 +48,11 @@ public class MoneyController extends BaseController {
         return getDataTable(list);
     }
 
+    @PostMapping("/logSina15")
+    public void logSina15() throws Exception {
+        tbSecuritiesDataService.logSina15();
+    }
+
+
+
 }

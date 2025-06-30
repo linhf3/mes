@@ -87,6 +87,6 @@ public interface ITbSecuritiesDataService
     List<SecuritiesSinaFutureVo> findDongFangFiveList() throws Exception;
 
 
-    void startMonitoringStrategy1();
+    void logSina15() throws InterruptedException;
 
 }
