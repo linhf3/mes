@@ -96,14 +96,14 @@ public class TbSecuritiesDataSinaThread implements Callable<SecuritiesSinaFuture
         if (price >= uprice && oprice >= uprice){
             securitiesSinaFutureVo.setMsg("上上");
             securitiesSinaFutureVo.setPositiveNegativeFlag(1);
-        }else if (price>mprice && price<uprice){
-            securitiesSinaFutureVo.setMsg("中上");
-            securitiesSinaFutureVo.setPositiveNegativeFlag(2);
-        }else if (price <= lprice && oprice <= lprice){
-            securitiesSinaFutureVo.setMsg("下下");
-            securitiesSinaFutureVo.setPositiveNegativeFlag(3);
         }else if (price >= uprice){
             securitiesSinaFutureVo.setMsg("上");
+            securitiesSinaFutureVo.setPositiveNegativeFlag(2);
+        }else if (price>mprice && price<uprice){
+            securitiesSinaFutureVo.setMsg("中上");
+            securitiesSinaFutureVo.setPositiveNegativeFlag(3);
+        }else if (price <= lprice && oprice <= lprice){
+            securitiesSinaFutureVo.setMsg("下下");
             securitiesSinaFutureVo.setPositiveNegativeFlag(4);
         }else if (price < lprice){
             securitiesSinaFutureVo.setMsg("下");
