@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.security.mapper.TbSinaFifteenMapper">
+    
+    <resultMap type="TbSinaFifteen" id="TbSinaFifteenResult">
+        <result property="id"    column="id"    />
+        <result property="code"    column="code"    />
+        <result property="name"    column="name"    />
+        <result property="points"    column="points"    />
+        <result property="logDate"    column="log_date"    />
+        <result property="reason"    column="reason"    />
+    </resultMap>
+
+    <sql id="selectTbSinaFifteenVo">
+        select id, code, name, points, log_date, reason from tb_sina_fifteen
+    </sql>
+
+    <select id="selectTbSinaFifteenList" parameterType="TbSinaFifteen" resultMap="TbSinaFifteenResult">
+        <include refid="selectTbSinaFifteenVo"/>
+        <where>  
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="points != null "> and points = #{points}</if>
+            <if test="logDate != null "> and log_date = #{logDate}</if>
+            <if test="reason != null  and reason != ''"> and reason = #{reason}</if>
+        </where>
+    </select>
+    
+    <select id="selectTbSinaFifteenById" parameterType="Long" resultMap="TbSinaFifteenResult">
+        <include refid="selectTbSinaFifteenVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTbSinaFifteen" parameterType="TbSinaFifteen" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_sina_fifteen
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="code != null">code,</if>
+            <if test="name != null">name,</if>
+            <if test="points != null">points,</if>
+            <if test="logDate != null">log_date,</if>
+            <if test="reason != null">reason,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="code != null">#{code},</if>
+            <if test="name != null">#{name},</if>
+            <if test="points != null">#{points},</if>
+            <if test="logDate != null">#{logDate},</if>
+            <if test="reason != null">#{reason},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTbSinaFifteen" parameterType="TbSinaFifteen">
+        update tb_sina_fifteen
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="code != null">code = #{code},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="points != null">points = #{points},</if>
+            <if test="logDate != null">log_date = #{logDate},</if>
+            <if test="reason != null">reason = #{reason},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTbSinaFifteenById" parameterType="Long">
+        delete from tb_sina_fifteen where id = #{id}
+    </delete>
+
+    <delete id="deleteTbSinaFifteenByIds" parameterType="String">
+        delete from tb_sina_fifteen where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
