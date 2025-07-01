@@ -30,7 +30,7 @@ public class TbSinaFifteen extends BaseEntity
 
     /** 振幅 */
     @Excel(name = "振幅")
-    private Long points;
+    private Double points;
 
     /** 时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -68,12 +68,12 @@ public class TbSinaFifteen extends BaseEntity
     {
         return name;
     }
-    public void setPoints(Long points) 
+    public void setPoints(Double points)
     {
         this.points = points;
     }
 
-    public Long getPoints() 
+    public Double getPoints()
     {
         return points;
     }

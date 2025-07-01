@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -14,12 +15,15 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.ruoyi.common.core.redis.RedisCache;
 import com.ruoyi.common.enums.Constant;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.http.HttpUtils;
 import com.ruoyi.security.algorithm.CoreAlgorithmContet;
 import com.ruoyi.security.domain.TbFluctuationLog;
 import com.ruoyi.security.domain.TbSecuritiesHistory;
+import com.ruoyi.security.domain.TbSinaFifteen;
 import com.ruoyi.security.service.ITbFluctuationLogService;
 import com.ruoyi.security.service.ITbSecuritiesHistoryService;
+import com.ruoyi.security.service.ITbSinaFifteenService;
 import com.ruoyi.security.task.TbSecuritiesDataSinaThread;
 import com.ruoyi.security.task.TbSecuritiesDataThread;
 import com.ruoyi.security.vo.SecuritiesFutureVo;
@@ -66,6 +70,9 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
 
     @Autowired
     private ITbSecuritiesHistoryService iTbSecuritiesHistoryService;
+
+    @Autowired
+    private ITbSinaFifteenService iTbSinaFifteenService;
 
     ReentrantLock lock = new ReentrantLock();
 
@@ -318,6 +325,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
                 urlMap.clear();
                 urlMap.put("variety1", new StringBuilder(tbSecuritiesData.getCode()).append("_").append(formattedDate).toString());
                 urlMap.put("variety2", tbSecuritiesData.getCode());
+                HttpGet httpGet = new HttpGet(new StrSubstitutor(urlMap).replace(Constant.SINA_DATE_DATA));
                 //发送http请求
                 String rx = HttpUtils.sendGet(new StrSubstitutor(urlMap).replace(Constant.SINA_DATE_DATA));
                 String str = rx.substring(rx.indexOf("(") + 1, rx.lastIndexOf(")"));
@@ -455,6 +463,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
 
     @Override
     public void logSina15() throws InterruptedException {
+        log.debug("=====================开始执行logSina15=====================");
         boolean b = lock.tryLock();
         if (!b){
             return;
@@ -464,9 +473,9 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
             LocalTime now = LocalTime.now();
             //判断是否是周末
             DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
-//            if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
-//                return;
-//            }
+            if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
+                return;
+            }
             // 定义目标时间 11:35
             LocalTime targetTime1 = LocalTime.of(9, 00);
             LocalTime targetTime2 = LocalTime.of(11, 31);
@@ -500,7 +509,18 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
                         redisCache.setCacheMapValue("money","securitiesSinaFutureVoList",securitiesSinaFutureVoList);
                     }
                     if (1 == securitiesSinaFutureVo.getPositiveNegativeFlag() || 2 == securitiesSinaFutureVo.getPositiveNegativeFlag()){
-
+                        String name = redisCache.getCacheObject(securitiesSinaFutureVo.getCode());
+                        if (StringUtils.isEmpty(name)){
+                            TbSinaFifteen tbSinaFifteen = new TbSinaFifteen();
+                            tbSinaFifteen.setCode(securitiesSinaFutureVo.getCode());
+                            tbSinaFifteen.setName(securitiesSinaFutureVo.getName());
+                            tbSinaFifteen.setPoints(securitiesSinaFutureVo.getPrice());
+                            Date date = new Date();
+                            tbSinaFifteen.setLogDate(date);
+                            tbSinaFifteen.setCreateTime(date);
+                            iTbSinaFifteenService.insertTbSinaFifteen(tbSinaFifteen);
+                            redisCache.setCacheObject(securitiesSinaFutureVo.getCode(),securitiesSinaFutureVo.getName(),5, TimeUnit.HOURS);
+                        }
                     }
                     //判断当前振幅是否大于等于缓存中的
                     Thread.sleep(8000);
