@@ -8,6 +8,7 @@ import com.ruoyi.security.vo.SecuritiesSinaFutureVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -49,8 +50,8 @@ public class MoneyController extends BaseController {
     }
 
     @PostMapping("/logSina15")
-    public void logSina15() throws Exception {
-        tbSecuritiesDataService.logSina15();
+    public void logSina15(@RequestParam String flag) throws Exception {
+        tbSecuritiesDataService.logSina15(flag);
     }
 
 

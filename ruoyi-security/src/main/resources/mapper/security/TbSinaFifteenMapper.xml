@@ -4,7 +4,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.security.mapper.TbSinaFifteenMapper">
     
-    <resultMap type="TbSinaFifteen" id="TbSinaFifteenResult">
+    <resultMap type="com.ruoyi.security.domain.TbSinaFifteen" id="TbSinaFifteenResult">
         <result property="id"    column="id"    />
         <result property="code"    column="code"    />
         <result property="name"    column="name"    />
@@ -14,10 +14,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectTbSinaFifteenVo">
-        select id, code, name, points, log_date, reason from tb_sina_fifteen
+        select id, code, name, points, log_date, reason from tb_sina_fifteen order by log_date desc
     </sql>
 
-    <select id="selectTbSinaFifteenList" parameterType="TbSinaFifteen" resultMap="TbSinaFifteenResult">
+    <select id="selectTbSinaFifteenList" parameterType="com.ruoyi.security.domain.TbSinaFifteen" resultMap="TbSinaFifteenResult">
         <include refid="selectTbSinaFifteenVo"/>
         <where>  
             <if test="code != null  and code != ''"> and code = #{code}</if>
@@ -28,12 +28,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
-    <select id="selectTbSinaFifteenById" parameterType="Long" resultMap="TbSinaFifteenResult">
+    <select id="selectTbSinaFifteenById" parameterType="java.lang.Long" resultMap="TbSinaFifteenResult">
         <include refid="selectTbSinaFifteenVo"/>
         where id = #{id}
     </select>
         
-    <insert id="insertTbSinaFifteen" parameterType="TbSinaFifteen" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertTbSinaFifteen" parameterType="com.ruoyi.security.domain.TbSinaFifteen" useGeneratedKeys="true" keyProperty="id">
         insert into tb_sina_fifteen
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="code != null">code,</if>
@@ -51,7 +51,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
-    <update id="updateTbSinaFifteen" parameterType="TbSinaFifteen">
+    <update id="updateTbSinaFifteen" parameterType="com.ruoyi.security.domain.TbSinaFifteen">
         update tb_sina_fifteen
         <trim prefix="SET" suffixOverrides=",">
             <if test="code != null">code = #{code},</if>
@@ -63,11 +63,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-    <delete id="deleteTbSinaFifteenById" parameterType="Long">
+    <delete id="deleteTbSinaFifteenById" parameterType="java.lang.Long">
         delete from tb_sina_fifteen where id = #{id}
     </delete>
 
-    <delete id="deleteTbSinaFifteenByIds" parameterType="String">
+    <delete id="deleteTbSinaFifteenByIds" parameterType="java.lang.String">
         delete from tb_sina_fifteen where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
