@@ -21,3 +21,10 @@ export function updateFluctuationLog() {
     method: 'post'
   })
 }
+
+export function logSina15(flag) {
+  return request({
+    url: '/money/logSina15?flag='+flag,
+    method: 'post'
+  })
+}
