@@ -17,21 +17,13 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="振幅" prop="undulate">
+      <el-form-item label="振幅" prop="points">
         <el-input
-          v-model="queryParams.undulate"
+          v-model="queryParams.points"
           placeholder="请输入振幅"
           clearable
           @keyup.enter.native="handleQuery"
         />
-      </el-form-item>
-      <el-form-item label="时间" prop="logDate">
-        <el-date-picker clearable
-          v-model="queryParams.logDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择时间">
-        </el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -47,7 +39,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['security:log:add']"
+          v-hasPermi="['security:fifteen:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -58,7 +50,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['security:log:edit']"
+          v-hasPermi="['security:fifteen:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -69,7 +61,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['security:log:remove']"
+          v-hasPermi="['security:fifteen:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -79,40 +71,23 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['security:log:export']"
+          v-hasPermi="['security:fifteen:export']"
         >导出</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          size="mini"
-          @click="updateFluctuationLog"
-        >更新</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          size="mini"
-          @click="logSina15"
-        >15分钟日志</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="logList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="fifteenList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="主键" align="center" prop="id" />
       <el-table-column label="编码" align="center" prop="code" />
       <el-table-column label="名称" align="center" prop="name" />
-      <el-table-column label="振幅" align="center" prop="undulate" />
+      <el-table-column label="振幅" align="center" prop="points" />
       <el-table-column label="时间" align="center" prop="logDate" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.logDate, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.logDate, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="1:期货，2：股票，3：外汇，4：btb" align="center" prop="logType" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -120,14 +95,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['security:log:edit']"
+            v-hasPermi="['security:fifteen:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['security:log:remove']"
+            v-hasPermi="['security:fifteen:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -141,7 +116,7 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改波动日志对话框 -->
+    <!-- 添加或修改新浪15分钟日志对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="编码" prop="code">
@@ -150,8 +125,8 @@
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入名称" />
         </el-form-item>
-        <el-form-item label="振幅" prop="undulate">
-          <el-input v-model="form.undulate" placeholder="请输入振幅" />
+        <el-form-item label="振幅" prop="points">
+          <el-input v-model="form.points" placeholder="请输入振幅" />
         </el-form-item>
         <el-form-item label="时间" prop="logDate">
           <el-date-picker clearable
@@ -160,6 +135,9 @@
             value-format="yyyy-MM-dd"
             placeholder="请选择时间">
           </el-date-picker>
+        </el-form-item>
+        <el-form-item label="1:期货，2：股票，3：外汇，4：btb" prop="reason">
+          <el-input v-model="form.reason" placeholder="请输入1:期货，2：股票，3：外汇，4：btb" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -171,11 +149,10 @@
 </template>
 
 <script>
-import { listLog, getLog, delLog, addLog, updateLog } from "@/api/security/log";
-import {updateFluctuationLog,logSina15} from "@/api/security/indexf";
+import { listFifteen, getFifteen, delFifteen, addFifteen, updateFifteen } from "@/api/security/fifteen";
 
 export default {
-  name: "Log",
+  name: "Fifteen",
   data() {
     return {
       // 遮罩层
@@ -190,8 +167,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 波动日志表格数据
-      logList: [],
+      // 新浪15分钟日志表格数据
+      fifteenList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -202,9 +179,9 @@ export default {
         pageSize: 10,
         code: null,
         name: null,
-        undulate: null,
+        points: null,
         logDate: null,
-        logType: null
+        reason: null
       },
       // 表单参数
       form: {},
@@ -217,11 +194,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询波动日志列表 */
+    /** 查询新浪15分钟日志列表 */
     getList() {
       this.loading = true;
-      listLog(this.queryParams).then(response => {
-        this.logList = response.rows;
+      listFifteen(this.queryParams).then(response => {
+        this.fifteenList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -237,9 +214,9 @@ export default {
         id: null,
         code: null,
         name: null,
-        undulate: null,
+        points: null,
         logDate: null,
-        logType: null
+        reason: null
       };
       this.resetForm("form");
     },
@@ -263,27 +240,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加波动日志";
+      this.title = "添加新浪15分钟日志";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getLog(id).then(response => {
+      getFifteen(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改波动日志";
-      });
-    },
-    /** 修改按钮操作 */
-    updateFluctuationLog() {
-      updateFluctuationLog().then(response => {
-       this.getList();
-      });
-    },
-    /** 记录15分钟日志 */
-    logSina15() {
-      logSina15('start').then(response => {
+        this.title = "修改新浪15分钟日志";
       });
     },
     /** 提交按钮 */
@@ -291,13 +257,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateLog(this.form).then(response => {
+            updateFifteen(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addLog(this.form).then(response => {
+            addFifteen(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -309,8 +275,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除波动日志编号为"' + ids + '"的数据项？').then(function() {
-        return delLog(ids);
+      this.$modal.confirm('是否确认删除新浪15分钟日志编号为"' + ids + '"的数据项？').then(function() {
+        return delFifteen(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -318,9 +284,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('security/log/export', {
+      this.download('security/fifteen/export', {
         ...this.queryParams
-      }, `log_${new Date().getTime()}.xlsx`)
+      }, `fifteen_${new Date().getTime()}.xlsx`)
     }
   }
 };

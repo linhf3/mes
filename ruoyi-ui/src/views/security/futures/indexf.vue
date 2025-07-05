@@ -39,9 +39,9 @@
           <el-table-column label="数值" align="center" prop="price" />
           <el-table-column label="偏离" align="center" prop="proportion" />
           <el-table-column label="振幅" align="center" prop="dailySpread" />
-          <el-table-column label="最大点数" align="center" prop="dianshu" />
-          <el-table-column label="上振" align="center" prop="up" />
-          <el-table-column label="下振" align="center" prop="down" />
+          <el-table-column label="当前振幅" align="center" prop="theCurrentAmplitude" />
+          <el-table-column label="振幅" align="center" prop="dailySpread" />
+          <el-table-column label="提示振幅" align="center" prop="undulate" />
 <!--          <el-table-column label="波动提示值" align="center" prop="undulate" />-->
         </el-table>
       </el-col>
@@ -54,7 +54,7 @@
               type="warning"
               plain
               size="mini"
-              @click="refreshSina"
+              @click="logSina15('start')"
               v-hasPermi="['security:future:start']"
             >开始</el-button>
           </el-col>
@@ -63,7 +63,7 @@
               type="warning"
               plain
               size="mini"
-              @click="stopSina"
+              @click="logSina15('stop')"
               v-hasPermi="['security:future:stop']"
             >停止</el-button>
           </el-col>
@@ -81,7 +81,7 @@
           <el-table-column type="selection" width="55" align="center" />
 <!--          <el-table-column label="编码" align="center" prop="code" />-->
           <el-table-column label="名称" align="center" prop="name" />
-          <el-table-column label="数值" align="center" prop="price" />
+          <el-table-column label="数值" align="center"  prop="price" />
           <el-table-column label="信息" align="center" prop="msg" />
           <el-table-column label="时间" align="center" prop="time" />
         </el-table>
@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import {findList,findSinaList} from "@/api/security/indexf";
+import {findList,findSinaList,logSina15} from "@/api/security/indexf";
 
 export default {
   name: "indexf",
@@ -145,6 +145,11 @@ export default {
       });
     },
 
+    logSina15(flag) {
+      logSina15(flag).then(response => {
+      });
+    },
+
     rowClassName({ row }) {
       if (row.positiveNegativeFlag === 1) {
         return 'row-red';
@@ -171,9 +176,9 @@ export default {
       if(this.futuresSinaList.length <= 0){
         this.getSinaList();
       }
-      // 实现轮询，每 20 秒发一次请求
+      // 实现轮询，每 4 秒发一次请求
       if (this.clearSinaTimeSet === null) { // 确保只创建一个定时器
-        this.clearSinaTimeSet = setInterval(() => this.getSinaList(), 20000);
+        this.clearSinaTimeSet = setInterval(() => this.getSinaList(), 4000);
       }
     },
     stop(){
