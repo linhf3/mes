@@ -30,12 +30,15 @@ import com.ruoyi.security.vo.SecuritiesFutureVo;
 import com.ruoyi.security.vo.SecuritiesSinaFutureVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import com.ruoyi.security.mapper.TbSecuritiesDataMapper;
@@ -109,9 +112,9 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
     @Override
     public int insertTbSecuritiesData(TbSecuritiesData tbSecuritiesData)
     {
-        redisCache.deleteObject("tbSecuritiesDataList");
-        redisCache.deleteObject("tbSecuritiesSinaDataList");
-        return tbSecuritiesDataMapper.insertTbSecuritiesData(tbSecuritiesData);
+        tbSecuritiesDataMapper.insertTbSecuritiesData(tbSecuritiesData);
+        tbSecuritiesDataMapper.updateTbSecuritiesData(tbSecuritiesData);
+        return 1;
     }
 
     /**
@@ -123,9 +126,29 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
     @Override
     public int updateTbSecuritiesData(TbSecuritiesData tbSecuritiesData)
     {
-        redisCache.deleteObject("tbSecuritiesDataList");
-        redisCache.deleteObject("tbSecuritiesSinaDataList");
-        return tbSecuritiesDataMapper.updateTbSecuritiesData(tbSecuritiesData);
+        tbSecuritiesDataMapper.updateTbSecuritiesData(tbSecuritiesData);
+        updateRedisKey();
+        return 1;
+    }
+
+    private void updateRedisKey(){
+        TbSecuritiesData tbSecuritiesData = new TbSecuritiesData();
+        List<TbSecuritiesData> tbSecuritiesDataList = this.selectTbSecuritiesDataList(tbSecuritiesData);
+        if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
+            return;
+        }
+        List<TbSecuritiesData> tbSecuritiesDataSinaList = tbSecuritiesDataList.stream().filter(t -> 2 == t.getType() && 0 == t.getStatus() && StringUtils.isNotEmpty(t.getExchangeCode())).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(tbSecuritiesDataSinaList)){
+            return;
+        }
+        redisCache.deleteCacheMapValue("money","f_sina_tbSecuritiesDataList");
+        redisCache.setCacheMapValue("money","f_sina_tbSecuritiesDataList",tbSecuritiesDataSinaList);
+        //东方数据放入缓存
+        List<TbSecuritiesData> tbSecuritiesDataDongfangList = tbSecuritiesDataList.stream().filter(t -> 1 == t.getType()).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(tbSecuritiesDataDongfangList)){
+            redisCache.deleteCacheMapValue("money","f_dongfang_tbSecuritiesDataList");
+            redisCache.setCacheMapValue("money","f_dongfang_tbSecuritiesDataList",tbSecuritiesDataDongfangList);
+        }
     }
 
     /**
@@ -137,9 +160,10 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
     @Override
     public int deleteTbSecuritiesDataByIds(Long[] ids)
     {
-        redisCache.deleteObject("tbSecuritiesDataList");
-        redisCache.deleteObject("tbSecuritiesSinaDataList");
-        return tbSecuritiesDataMapper.deleteTbSecuritiesDataByIds(ids);
+        tbSecuritiesDataMapper.deleteTbSecuritiesDataByIds(ids);
+        updateRedisKey();
+        return 1;
+
     }
 
     /**
@@ -151,9 +175,9 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
     @Override
     public int deleteTbSecuritiesDataById(Long id)
     {
-        redisCache.deleteObject("tbSecuritiesDataList");
-        redisCache.deleteObject("tbSecuritiesSinaDataList");
-        return tbSecuritiesDataMapper.deleteTbSecuritiesDataById(id);
+        tbSecuritiesDataMapper.deleteTbSecuritiesDataById(id);
+        updateRedisKey();
+        return 1;
     }
 
     /**
@@ -258,47 +282,8 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
 
     @Override
     public List<SecuritiesSinaFutureVo> findSinaList() {
-        //1.查询有效配置
-
-        List<TbSecuritiesData> tbSecuritiesSinaDataList = redisCache.getCacheMapValue("money","f_sina_tbSecuritiesDataList");
-        if (CollectionUtils.isEmpty(tbSecuritiesSinaDataList)){
-            return new ArrayList<>();
-        }
-        tbSecuritiesSinaDataList = tbSecuritiesSinaDataList.stream().filter(t -> t.getStatus() == 0).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(tbSecuritiesSinaDataList)){
-            return new ArrayList<>();
-        }
-        if (CollectionUtils.isEmpty(tbSecuritiesSinaDataList)){
-            return new ArrayList<>();
-        }
-        List<Future<SecuritiesSinaFutureVo>> futures = new ArrayList<>();
-        //2、构建线程
-        long startTime = System.currentTimeMillis();
-        for (TbSecuritiesData tbSecuritiesData : tbSecuritiesSinaDataList) {
-            //获取15分钟上中下
-            TbSecuritiesDataSinaThread tbSecuritiesDataThread = new TbSecuritiesDataSinaThread(tbSecuritiesData, coreAlgorithmContet, Constant.SINA_FIFTEEN_MIN_LINE);
-            Future<SecuritiesSinaFutureVo> future = taskExecutor.submit(tbSecuritiesDataThread);
-            futures.add(future);
-        }
-        //3、等待所有任务完成
-        List<SecuritiesSinaFutureVo> list = new ArrayList<>();
-        for (Future<SecuritiesSinaFutureVo> future : futures) {
-            try {
-                list.add(future.get());// 阻塞直到任务完成
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        // 自定义升序排序
-        Collections.sort(list, new Comparator<SecuritiesSinaFutureVo>() {
-            @Override
-            public int compare(SecuritiesSinaFutureVo o1, SecuritiesSinaFutureVo o2) {
-                return o1.getPositiveNegativeFlag().compareTo(o2.getPositiveNegativeFlag()); // 降序排序
-            }
-        });
-        long endTime = System.currentTimeMillis();
-        log.info("执行时长：{}", endTime - startTime);
-        return list;
+        List<SecuritiesSinaFutureVo>  securitiesSinaFutureVoList = redisCache.getCacheMapValue("money", "securitiesSinaFutureVoList");
+        return CollectionUtils.isEmpty(securitiesSinaFutureVoList)?new ArrayList<>():securitiesSinaFutureVoList;
     }
 
      @Override
@@ -325,9 +310,17 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
                 urlMap.clear();
                 urlMap.put("variety1", new StringBuilder(tbSecuritiesData.getCode()).append("_").append(formattedDate).toString());
                 urlMap.put("variety2", tbSecuritiesData.getCode());
+                // 创建HttpClient实例
+                HttpClient httpClient = HttpClients.createDefault();
+                // 创建HttpGet实例
                 HttpGet httpGet = new HttpGet(new StrSubstitutor(urlMap).replace(Constant.SINA_DATE_DATA));
-                //发送http请求
-                String rx = HttpUtils.sendGet(new StrSubstitutor(urlMap).replace(Constant.SINA_DATE_DATA));
+                httpGet.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
+                // 发送请求
+                HttpResponse response = httpClient.execute(httpGet);
+                // 获取响应体
+                HttpEntity entity = response.getEntity();
+                String rx = EntityUtils.toString(entity, "UTF-8");
+                //String rx = HttpUtils.sendGet(new StrSubstitutor(urlMap).replace(Constant.SINA_DATE_DATA));
                 String str = rx.substring(rx.indexOf("(") + 1, rx.lastIndexOf(")"));
                 JSONArray jsonArray = JSONArray.parse(str);
                 for (int i = jsonArray.size() - 1; i >= jsonArray.size() - 20; i--) {
@@ -346,7 +339,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
                     list.add(tbFluctuationLog);
                 }
                 iTbFluctuationLogService.insertTbFluctuationLogList(list);
-                Thread.sleep(10000);
+                Thread.sleep(20000);
             }
         }catch (Exception e){
             log.error("同步异常");
@@ -461,82 +454,71 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
         return null;
     }
 
+    @Async("taskExecutor")
     @Override
-    public void logSina15() throws InterruptedException {
+    public void logSina15(String flag) throws InterruptedException {
         log.debug("=====================开始执行logSina15=====================");
-        boolean b = lock.tryLock();
-        if (!b){
-            return;
-        }
+        redisCache.setCacheMapValue("money","logSina15", flag);
         try {
-            // 获取当前时间
-            LocalTime now = LocalTime.now();
-            //判断是否是周末
-            DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
-            if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
+            if (!"start".equals(redisCache.getCacheMapValue("money","logSina15"))){
                 return;
             }
-            // 定义目标时间 11:35
-            LocalTime targetTime1 = LocalTime.of(9, 00);
-            LocalTime targetTime2 = LocalTime.of(11, 31);
-            LocalTime targetTime3 = LocalTime.of(13, 30);
-            LocalTime targetTime4 = LocalTime.of(15, 01);
-            LocalTime targetTime5 = LocalTime.of(21, 00);
-            LocalTime targetTime6 = LocalTime.of(23, 00);
-            if ((now.isAfter(targetTime1) && now.isBefore(targetTime2)) || (now.isAfter(targetTime3) && now.isBefore(targetTime4))
-                    || (now.isAfter(targetTime5) && now.isBefore(targetTime6))){
-                List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheMapValue("money","f_sina_tbSecuritiesDataList");
-                if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
-                    return;
-                }
-                long startTime = System.currentTimeMillis();
-                for (TbSecuritiesData tbSecuritiesData : tbSecuritiesDataList) {
-                    TbSecuritiesDataSinaThread tbSecuritiesDataThread = new TbSecuritiesDataSinaThread(tbSecuritiesData, coreAlgorithmContet, Constant.SINA_FIFTEEN_MIN_LINE);
-                    SecuritiesSinaFutureVo securitiesSinaFutureVo = tbSecuritiesDataThread.call();
-                    List<SecuritiesSinaFutureVo> securitiesSinaFutureVoList = redisCache.getCacheMapValue("money","securitiesSinaFutureVoList");
-                    if (CollectionUtils.isEmpty(securitiesSinaFutureVoList)){
-                        List<SecuritiesSinaFutureVo> list = new ArrayList<>();
-                        list.add(securitiesSinaFutureVo);
-                        redisCache.setCacheMapValue("money","securitiesSinaFutureVoList",list);
-                    }else {
-                        List<SecuritiesSinaFutureVo> collect = securitiesSinaFutureVoList.stream().filter(t -> t.getCode().equals(securitiesSinaFutureVo.getCode())).collect(Collectors.toList());
-                        if (!CollectionUtils.isEmpty(collect)){
-                            securitiesSinaFutureVoList.remove(collect.get(0));
-                        }
-                        securitiesSinaFutureVoList.add(securitiesSinaFutureVo);
-                        //按照振幅降序排序
-                        securitiesSinaFutureVoList.sort(Comparator.comparing(SecuritiesSinaFutureVo::getPositiveNegativeFlag));
-                        redisCache.setCacheMapValue("money","securitiesSinaFutureVoList",securitiesSinaFutureVoList);
-                    }
-                    if (1 == securitiesSinaFutureVo.getPositiveNegativeFlag() || 2 == securitiesSinaFutureVo.getPositiveNegativeFlag()){
-                        String name = redisCache.getCacheObject(securitiesSinaFutureVo.getCode());
-                        if (StringUtils.isEmpty(name)){
-                            TbSinaFifteen tbSinaFifteen = new TbSinaFifteen();
-                            tbSinaFifteen.setCode(securitiesSinaFutureVo.getCode());
-                            tbSinaFifteen.setName(securitiesSinaFutureVo.getName());
-                            tbSinaFifteen.setPoints(securitiesSinaFutureVo.getPrice());
-                            Date date = new Date();
-                            tbSinaFifteen.setLogDate(date);
-                            tbSinaFifteen.setCreateTime(date);
-                            iTbSinaFifteenService.insertTbSinaFifteen(tbSinaFifteen);
-                            redisCache.setCacheObject(securitiesSinaFutureVo.getCode(),securitiesSinaFutureVo.getName(),5, TimeUnit.HOURS);
-                        }
-                    }
-                    //判断当前振幅是否大于等于缓存中的
-                    Thread.sleep(8000);
-                }
-                long endTime = System.currentTimeMillis();
-                log.debug("执行时长：{}", endTime - startTime);
+            List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheMapValue("money","f_sina_tbSecuritiesDataList");
+            if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
+                return;
             }
+            log.debug("=====================redis查询redisSecuritiesSinaFutureVo=====================");
+            List<SecuritiesSinaFutureVo> redisSecuritiesSinaFutureVo = redisCache.getCacheMapValue("money", "securitiesSinaFutureVoList");
+            if (!CollectionUtils.isEmpty(redisSecuritiesSinaFutureVo)){
+                List<String> codeList = tbSecuritiesDataList.stream().map(TbSecuritiesData::getCode).collect(Collectors.toList());
+                List<SecuritiesSinaFutureVo> list = redisSecuritiesSinaFutureVo.stream().filter(t -> codeList.contains(t.getCode())).collect(Collectors.toList());
+                log.debug("=====================redis设置redisSecuritiesSinaFutureVo(list)=====================");
+                redisCache.setCacheMapValue("money", "securitiesSinaFutureVoList",CollectionUtils.isEmpty(list)?new ArrayList<>():list);
+            }
+            long startTime = System.currentTimeMillis();
+            log.debug("=====================redisSecuritiesSinaFutureVo大小：{}：",tbSecuritiesDataList.size());
+            for (TbSecuritiesData tbSecuritiesData : tbSecuritiesDataList) {
+                TbSecuritiesDataSinaThread tbSecuritiesDataThread = new TbSecuritiesDataSinaThread(tbSecuritiesData, coreAlgorithmContet, Constant.SINA_FIFTEEN_MIN_LINE);
+                SecuritiesSinaFutureVo securitiesSinaFutureVo = tbSecuritiesDataThread.call();
+                List<SecuritiesSinaFutureVo> securitiesSinaFutureVoList = redisCache.getCacheMapValue("money","securitiesSinaFutureVoList");
+                if (CollectionUtils.isEmpty(securitiesSinaFutureVoList)){
+                    List<SecuritiesSinaFutureVo> list = new ArrayList<>();
+                    list.add(securitiesSinaFutureVo);
+                    redisCache.setCacheMapValue("money","securitiesSinaFutureVoList",list);
+                }else {
+                    List<SecuritiesSinaFutureVo> collect = securitiesSinaFutureVoList.stream().filter(t -> t.getCode().equals(securitiesSinaFutureVo.getCode())).collect(Collectors.toList());
+                    if (!CollectionUtils.isEmpty(collect)){
+                        securitiesSinaFutureVoList.remove(collect.get(0));
+                    }
+                    securitiesSinaFutureVoList.add(securitiesSinaFutureVo);
+                    //按照振幅降序排序
+                    securitiesSinaFutureVoList.sort(Comparator.comparing(SecuritiesSinaFutureVo::getPositiveNegativeFlag));
+                    redisCache.setCacheMapValue("money","securitiesSinaFutureVoList",securitiesSinaFutureVoList);
+                }
+                if (1 == securitiesSinaFutureVo.getPositiveNegativeFlag() || 2 == securitiesSinaFutureVo.getPositiveNegativeFlag()){
+                    String name = redisCache.getCacheObject(securitiesSinaFutureVo.getCode());
+                    if (StringUtils.isEmpty(name)){
+                        TbSinaFifteen tbSinaFifteen = new TbSinaFifteen();
+                        tbSinaFifteen.setCode(securitiesSinaFutureVo.getCode());
+                        tbSinaFifteen.setName(securitiesSinaFutureVo.getName());
+                        tbSinaFifteen.setPoints(securitiesSinaFutureVo.getPrice());
+                        Date date = new Date();
+                        tbSinaFifteen.setLogDate(date);
+                        tbSinaFifteen.setCreateTime(date);
+                        iTbSinaFifteenService.insertTbSinaFifteen(tbSinaFifteen);
+                        redisCache.setCacheObject(securitiesSinaFutureVo.getCode(),securitiesSinaFutureVo.getName(),5, TimeUnit.HOURS);
+                    }
+                }
+                log.debug("=====================进入休眠=====================");
+                Thread.sleep(6000);
+            }
+            long endTime = System.currentTimeMillis();
+            log.debug("执行时长：{}", endTime - startTime);
+            Thread.sleep(1000);
+            log.debug("=====================递归=====================");
+            logSina15(redisCache.getCacheMapValue("money","logSina15"));
         }catch (Exception e){
             log.info("异常：",e);
-        }finally {
-            if (b){
-                lock.unlock();
-                log.debug("logSina15 == 释放锁成功，休眠20秒");
-                Thread.sleep(2,000);
-                this.logSina15();
-            }
         }
     }
 
