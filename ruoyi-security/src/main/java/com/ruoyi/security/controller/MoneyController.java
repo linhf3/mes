@@ -4,6 +4,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.security.service.ITbSecuritiesDataService;
 import com.ruoyi.security.vo.SecuritiesFutureVo;
+import com.ruoyi.security.vo.FutureVo;
 import com.ruoyi.security.vo.SecuritiesSinaFutureVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,12 @@ public class MoneyController extends BaseController {
     @PostMapping("/findList")
     public TableDataInfo findList(){
         List<SecuritiesFutureVo> list = tbSecuritiesDataService.findList();
+        return getDataTable(list);
+    }
+
+    @PostMapping("/findListByPoints")
+    public TableDataInfo findListByPoints(){
+        List<FutureVo> list = tbSecuritiesDataService.findListByPoints();
         return getDataTable(list);
     }
 
