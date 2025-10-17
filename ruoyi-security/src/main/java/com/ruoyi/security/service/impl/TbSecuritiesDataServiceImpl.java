@@ -1,8 +1,6 @@
 package com.ruoyi.security.service.impl;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -24,8 +22,10 @@ import com.ruoyi.security.domain.TbSinaFifteen;
 import com.ruoyi.security.service.ITbFluctuationLogService;
 import com.ruoyi.security.service.ITbSecuritiesHistoryService;
 import com.ruoyi.security.service.ITbSinaFifteenService;
+import com.ruoyi.security.task.FutureThread;
 import com.ruoyi.security.task.TbSecuritiesDataSinaThread;
 import com.ruoyi.security.task.TbSecuritiesDataThread;
+import com.ruoyi.security.vo.FutureVo;
 import com.ruoyi.security.vo.SecuritiesFutureVo;
 import com.ruoyi.security.vo.SecuritiesSinaFutureVo;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +45,9 @@ import com.ruoyi.security.mapper.TbSecuritiesDataMapper;
 import com.ruoyi.security.domain.TbSecuritiesData;
 import com.ruoyi.security.service.ITbSecuritiesDataService;
 import org.springframework.util.CollectionUtils;
+
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.nullsLast;
 
 /**
  * 证劵交易Service业务层处理
@@ -278,6 +281,45 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
         long endTime = System.currentTimeMillis();
         log.info("执行时长：{}", endTime - startTime);
         return list;
+    }
+
+    @Override
+    public List<FutureVo> findListByPoints() {
+        //1.查询有效配置
+        List<TbSecuritiesData> tbSecuritiesDataList = redisCache.getCacheMapValue("money","f_dongfang_tbSecuritiesDataList");
+        if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
+            return new ArrayList<>();
+        }
+        tbSecuritiesDataList = tbSecuritiesDataList.stream().filter(t -> t.getStatus() == 0).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
+            return new ArrayList<>();
+        }
+        List<Future<FutureVo>> futures = new ArrayList<>();
+        //2、构建线程
+        long startTime = System.currentTimeMillis();
+        for (TbSecuritiesData tbSecuritiesData : tbSecuritiesDataList) {
+            FutureThread tbSecuritiesDataThread = new FutureThread(tbSecuritiesData, coreAlgorithmContet);
+            Future<FutureVo> future = taskExecutor.submit(tbSecuritiesDataThread);
+            futures.add(future);
+        }
+        //3、等待所有任务完成
+        List<FutureVo> list = new ArrayList<>();
+        for (Future<FutureVo> future : futures) {
+            try {
+                list.add(future.get());// 阻塞直到任务完成
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        // 自定义降序排序
+        long endTime = System.currentTimeMillis();
+        log.info("执行时长：{}", endTime - startTime);
+        return list.stream()
+                .sorted(
+                        comparing(FutureVo::getNum, nullsLast(Integer::compareTo))  // ① 第一关键字：num 倒序
+                                .thenComparing(FutureVo::getTheCurrentAmplitude)                 // ② 第二关键字：振幅
+                )
+                .collect(Collectors.toList());
     }
 
     @Override
