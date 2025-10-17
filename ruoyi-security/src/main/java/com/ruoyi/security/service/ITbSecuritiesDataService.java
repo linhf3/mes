@@ -3,6 +3,7 @@ package com.ruoyi.security.service;
 import java.util.List;
 import com.ruoyi.security.domain.TbSecuritiesData;
 import com.ruoyi.security.vo.SecuritiesFutureVo;
+import com.ruoyi.security.vo.FutureVo;
 import com.ruoyi.security.vo.SecuritiesSinaFutureVo;
 
 /**
@@ -75,6 +76,11 @@ public interface ITbSecuritiesDataService
      * 查询实时期货分析数据
      */
     List<SecuritiesFutureVo> findList();
+
+    /**
+     * 查询实时期货分析数据，根据近20日点数振幅进行提示
+     */
+    List<FutureVo> findListByPoints();
 
     List<SecuritiesSinaFutureVo> findSinaList();
 
