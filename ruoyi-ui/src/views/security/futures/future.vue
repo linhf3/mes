@@ -23,13 +23,13 @@
 
     <el-table v-loading="loading" :data="futuresList" :row-class-name="rowClassName" >
       <el-table-column type="selection" width="55" align="center" />
-<!--      <el-table-column label="编码" align="center" prop="code" />-->
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="数值" align="center" prop="price" />
       <el-table-column label="偏离" align="center" prop="proportion" />
+      <el-table-column label="排名" align="center" prop="num" />
       <el-table-column label="当前振幅" align="center" prop="theCurrentAmplitude" />
       <el-table-column label="振幅" align="center" prop="dailySpread" />
-      <el-table-column label="提示振幅" align="center" prop="undulate" />
+      <el-table-column label="前五" align="center" prop="dailySpread5" />
     </el-table>
 
     <pagination
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import {findList} from "@/api/security/future";
+import {findListByPoints} from "@/api/security/future";
 
 export default {
   name: "Future",
@@ -75,7 +75,7 @@ export default {
     /** 查询证劵交易数据源列表 */
     getList() {
       //this.loading = true;
-      findList().then(response => {
+      findListByPoints().then(response => {
         this.futuresList = response.rows;
         this.total = response.total;
         this.loading = false;
@@ -83,10 +83,12 @@ export default {
     },
 
     rowClassName({ row }) {
-      if (row.positiveNegativeFlag === 1 || row.positiveNegativeFlag === 3) {
+      if (row.num <= 5) {
+        return 'row-purple';
+      }else if (row.num <= 10){
         return 'row-red';
-      }else if (row.positiveNegativeFlag === 2 || row.positiveNegativeFlag === 4){
-        return 'row-green';
+      }else if (row.num <= 20){
+        return 'row-blue';
       }
       return '';
     },
@@ -117,10 +119,13 @@ export default {
 </script>
 
 <style>
+.row-purple {
+  color: purple;
+}
 .row-red {
   color: red;
 }
-.row-green {
-  color: green;
+.row-blue {
+  color: blue;
 }
 </style>

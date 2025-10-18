@@ -19,24 +19,17 @@
           v-hasPermi="['security:future:stop']"
         >停止</el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          size="mini"
-          @click="getList"
-          v-hasPermi="['security:future:stop']"
-        >刷新</el-button>
-      </el-col>
     </el-row>
 
     <el-table v-loading="loading" :data="futuresList" :row-class-name="rowClassName" >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="编码" align="center" prop="code" />
+<!--      <el-table-column label="编码" align="center" prop="code" />-->
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="数值" align="center" prop="price" />
-      <el-table-column label="信息" align="center" prop="msg" />
-      <el-table-column label="时间" align="center" prop="time" />
+      <el-table-column label="偏离" align="center" prop="proportion" />
+      <el-table-column label="当前振幅" align="center" prop="theCurrentAmplitude" />
+      <el-table-column label="振幅" align="center" prop="dailySpread" />
+      <el-table-column label="提示振幅" align="center" prop="undulate" />
     </el-table>
 
     <pagination
@@ -51,10 +44,10 @@
 </template>
 
 <script>
-import {findSinaFiveList} from "@/api/security/sinafuture";
+import {findList} from "@/api/security/future";
 
 export default {
-  name: "Future",
+  name: "FutureDongfang",
   data() {
     return {
       // 遮罩层
@@ -82,7 +75,7 @@ export default {
     /** 查询证劵交易数据源列表 */
     getList() {
       //this.loading = true;
-      findSinaFiveList().then(response => {
+      findList().then(response => {
         this.futuresList = response.rows;
         this.total = response.total;
         this.loading = false;
@@ -106,9 +99,9 @@ export default {
       if(this.futuresList.length <= 0){
         this.getList();
       }
-      // 实现轮询，每 3 秒发一次请求
+      // 实现轮询，每 5 秒发一次请求
       if (this.clearTimeSet === null) { // 确保只创建一个定时器
-        this.clearTimeSet = setInterval(() => this.getList(), 3000);
+        this.clearTimeSet = setInterval(() => this.getList(), 4000);
       }
     },
     stop(){

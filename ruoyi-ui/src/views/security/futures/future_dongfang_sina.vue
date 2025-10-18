@@ -94,7 +94,7 @@
 import {findList,findSinaList,logSina15} from "@/api/security/indexf";
 
 export default {
-  name: "indexf",
+  name: "FutureDongfangSina",
   data() {
     return {
       // 遮罩层
