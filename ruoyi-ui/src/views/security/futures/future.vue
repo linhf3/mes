@@ -89,7 +89,9 @@ export default {
     },
 
     rowClassName({ row }) {
-      if (row.num <= 5) {
+      if (0 <= row.num){
+        return '';
+      }else if (row.num <= 5) {
         return 'row-green';
       }else if (row.num <= 10){
         return 'row-red';
