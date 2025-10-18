@@ -294,11 +294,13 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
         if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
             return new ArrayList<>();
         }
+        Map<String, List<Double>> sortedValuesByGroup = redisCache.getCacheMapValue("money","sortedValuesByGroup");
+        Map<String,String> dongfangMap = redisCache.getCacheMapValue("money", "f_dongfang");
         List<Future<FutureVo>> futures = new ArrayList<>();
         //2、构建线程
         long startTime = System.currentTimeMillis();
         for (TbSecuritiesData tbSecuritiesData : tbSecuritiesDataList) {
-            FutureThread tbSecuritiesDataThread = new FutureThread(tbSecuritiesData, coreAlgorithmContet);
+            FutureThread tbSecuritiesDataThread = new FutureThread(tbSecuritiesData, coreAlgorithmContet, sortedValuesByGroup.get(dongfangMap.get(tbSecuritiesData.getCode())));
             Future<FutureVo> future = taskExecutor.submit(tbSecuritiesDataThread);
             futures.add(future);
         }
@@ -312,14 +314,15 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
             }
         }
         // 自定义降序排序
-        long endTime = System.currentTimeMillis();
-        log.info("执行时长：{}", endTime - startTime);
-        return list.stream()
+        list = list.stream()
                 .sorted(
                         comparing(FutureVo::getNum, nullsLast(Integer::compareTo))  // ① 第一关键字：num 倒序
                                 .thenComparing(FutureVo::getTheCurrentAmplitude)                 // ② 第二关键字：振幅
                 )
                 .collect(Collectors.toList());
+        long endTime = System.currentTimeMillis();
+        log.info("执行时长：{}", endTime - startTime);
+        return list;
     }
 
     @Override
