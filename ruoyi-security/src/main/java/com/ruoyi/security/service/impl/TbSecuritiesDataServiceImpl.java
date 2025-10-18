@@ -141,12 +141,11 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
             return;
         }
         List<TbSecuritiesData> tbSecuritiesDataSinaList = tbSecuritiesDataList.stream().filter(t -> 2 == t.getType() && 0 == t.getStatus() && StringUtils.isNotEmpty(t.getExchangeCode())).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(tbSecuritiesDataSinaList)){
-            return;
+        if (!CollectionUtils.isEmpty(tbSecuritiesDataSinaList)){
+            redisCache.deleteCacheMapValue("money","f_sina_tbSecuritiesDataList");
+            redisCache.setCacheMapValue("money","f_sina_tbSecuritiesDataList",tbSecuritiesDataSinaList);
         }
-        redisCache.deleteCacheMapValue("money","f_sina_tbSecuritiesDataList");
-        redisCache.setCacheMapValue("money","f_sina_tbSecuritiesDataList",tbSecuritiesDataSinaList);
-        //东方数据放入缓存
+         //东方数据放入缓存
         List<TbSecuritiesData> tbSecuritiesDataDongfangList = tbSecuritiesDataList.stream().filter(t -> 1 == t.getType()).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(tbSecuritiesDataDongfangList)){
             redisCache.deleteCacheMapValue("money","f_dongfang_tbSecuritiesDataList");

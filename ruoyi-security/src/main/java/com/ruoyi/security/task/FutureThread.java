@@ -61,7 +61,7 @@ public class FutureThread implements Callable<FutureVo> {
         Double theCurrentAmplitude2 = max-price;
         futureVo.setTheCurrentAmplitude(theCurrentAmplitude1>theCurrentAmplitude2?theCurrentAmplitude1:theCurrentAmplitude2);
         futureVo.setNum(CollectionUtils.isEmpty(priceList)?0:indexOf(priceList, futureVo.getTheCurrentAmplitude()));
-        futureVo.setDailySpread5(CollectionUtils.isEmpty(priceList)?"":priceList.subList(0,5).stream().map(String::valueOf).collect(Collectors.joining(",")));
+        futureVo.setDailySpread5(CollectionUtils.isEmpty(priceList)?"":priceList.stream().map(String::valueOf).map(str -> str.replaceAll("\\.0+$", "")).collect(Collectors.joining(",")));
         return futureVo;
     }
 
