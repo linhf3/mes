@@ -31,7 +31,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="type != null "> and type = #{type}</if>
             <if test="status != null "> and status = #{status}</if>
         </where>
-        order by status asc
+        order by status asc, type asc
     </select>
     
     <select id="selectTbSecuritiesDataById" parameterType="Long" resultMap="TbSecuritiesDataResult">
