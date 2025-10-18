@@ -33,8 +33,8 @@
       <el-table-column label="数值" align="center" prop="price" />
       <el-table-column label="偏离" align="center" prop="proportion" />
       <el-table-column label="排名" align="center" prop="num" />
-      <el-table-column label="当前振幅" align="center" prop="theCurrentAmplitude" />
       <el-table-column label="振幅" align="center" prop="dailySpread" />
+      <el-table-column label="当前振幅" align="center" prop="theCurrentAmplitude" />
       <el-table-column label="前五" width="430" align="center" prop="dailySpread5" />
     </el-table>
 
@@ -90,11 +90,11 @@ export default {
 
     rowClassName({ row }) {
       if (row.num <= 5) {
-        return 'row-purple';
+        return 'row-green';
       }else if (row.num <= 10){
         return 'row-red';
       }else if (row.num <= 20){
-        return 'row-blue';
+        return 'row-yellow';
       }
       return '';
     },
@@ -128,13 +128,13 @@ export default {
 </script>
 
 <style>
-.row-purple {
-  color: purple;
+.row-green {
+  color: green;
 }
 .row-red {
   color: red;
 }
-.row-blue {
-  color: blue;
+.row-yellow {
+  color: #af3f3f;
 }
 </style>
