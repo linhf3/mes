@@ -1,14 +1,14 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="编码" prop="code">
-        <el-input
-          v-model="queryParams.code"
-          placeholder="请输入编码"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+      <!--     <el-form-item label="编码" prop="code">
+           <el-input-->
+<!--          v-model="queryParams.code"-->
+<!--          placeholder="请输入编码"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />
+      </el-form-item>-->
       <el-form-item label="名称" prop="name">
         <el-input
           v-model="queryParams.name"
@@ -17,31 +17,31 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="偏离值" prop="deviation">
-        <el-input
-          v-model="queryParams.deviation"
-          placeholder="请输入偏离值"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="波动" prop="undulate">
-        <el-input
-          v-model="queryParams.undulate"
-          placeholder="请输入波动"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
-          <el-option
-            v-for="dict in dict.type.sys_normal_disable"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
-        </el-select>
+<!--      <el-form-item label="偏离值" prop="deviation">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.deviation"-->
+<!--          placeholder="请输入偏离值"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="波动" prop="undulate">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.undulate"-->
+<!--          placeholder="请输入波动"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="状态" prop="status">-->
+<!--        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>-->
+<!--          <el-option-->
+<!--            v-for="dict in dict.type.sys_normal_disable"-->
+<!--            :key="dict.value"-->
+<!--            :label="dict.label"-->
+<!--            :value="dict.value"-->
+<!--          />-->
+<!--        </el-select>-->
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -96,8 +96,6 @@
     </el-row>
 
     <el-table v-loading="loading" :data="futuresList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
       <el-table-column label="编码" align="center" prop="code" />
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="交易所-编码" align="center" prop="exchangeCode" />

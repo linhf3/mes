@@ -32,10 +32,14 @@
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="数值" align="center" prop="price" />
       <el-table-column label="偏离" align="center" prop="proportion" />
-      <el-table-column label="排名" align="center" prop="num" />
+      <el-table-column label="排名" align="center" prop="num">
+        <template #default="{ row }">
+          {{ row.num === 0 ? '-' : row.num }}
+        </template>
+      </el-table-column>
       <el-table-column label="振幅" align="center" prop="dailySpread" />
       <el-table-column label="当前振幅" align="center" prop="theCurrentAmplitude" />
-      <el-table-column label="前五" width="430" align="center" prop="dailySpread5" />
+      <el-table-column label="前二十" width="650" align="center" prop="dailySpread5" />
     </el-table>
 
     <pagination
@@ -72,7 +76,7 @@ export default {
     };
   },
   created() {
-    this.refresh();
+    this.refreshOne();
   },
   beforeDestroy() {
     this.stop(); // 确保在组件销毁时清除定时器
@@ -89,14 +93,14 @@ export default {
     },
 
     rowClassName({ row }) {
-      if (0 <= row.num){
+      if (row.num <= 0){
         return '';
       }else if (row.num <= 5) {
-        return 'row-green';
-      }else if (row.num <= 10){
         return 'row-red';
-      }else if (row.num <= 20){
+      }else if (row.num <= 10){
         return 'row-yellow';
+      }else if (row.num <= 20){
+        return 'row-green';
       }
       return '';
     },

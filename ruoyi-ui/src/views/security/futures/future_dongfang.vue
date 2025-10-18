@@ -22,7 +22,7 @@
     </el-row>
 
     <el-table v-loading="loading" :data="futuresList" :row-class-name="rowClassName" >
-      <el-table-column type="selection" width="55" align="center" />
+<!--      <el-table-column type="selection" width="55" align="center" />-->
 <!--      <el-table-column label="编码" align="center" prop="code" />-->
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="数值" align="center" prop="price" />
