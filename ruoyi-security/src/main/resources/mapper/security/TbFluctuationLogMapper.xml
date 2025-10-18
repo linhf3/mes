@@ -26,6 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="logDate != null "> and log_date >= #{logDate}</if>
             <if test="logType != null "> and log_type = #{logType}</if>
         </where>
+        <if test="name != null  and name != ''"> order by undulate desc</if>
     </select>
     
     <select id="selectTbFluctuationLogById" parameterType="Long" resultMap="TbFluctuationLogResult">
