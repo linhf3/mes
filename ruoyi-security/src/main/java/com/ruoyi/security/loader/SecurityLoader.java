@@ -75,7 +75,7 @@ public class SecurityLoader implements CommandLineRunner {
         if (CollectionUtils.isEmpty(tbSecuritiesDataList)){
             return;
         }
-        List<TbSecuritiesData> tbSecuritiesDataSinaList = tbSecuritiesDataList.stream().filter(t -> 2 == t.getType() && 0 == t.getStatus() && StringUtils.isNotEmpty(t.getExchangeCode())).collect(Collectors.toList());
+        List<TbSecuritiesData> tbSecuritiesDataSinaList = tbSecuritiesDataList.stream().filter(t -> 2 == t.getType() && StringUtils.isNotEmpty(t.getExchangeCode())).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(tbSecuritiesDataSinaList)){
             return;
         }

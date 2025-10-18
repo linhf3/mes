@@ -18,18 +18,24 @@
           @click="stop"
           v-hasPermi="['security:future:stop']"
         >停止</el-button>
+        <el-button
+          type="warning"
+          plain
+          size="mini"
+          @click="refreshOne"
+          v-hasPermi="['security:future:start']"
+        >搜索</el-button>
       </el-col>
     </el-row>
 
     <el-table v-loading="loading" :data="futuresList" :row-class-name="rowClassName" >
-      <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="数值" align="center" prop="price" />
       <el-table-column label="偏离" align="center" prop="proportion" />
       <el-table-column label="排名" align="center" prop="num" />
       <el-table-column label="当前振幅" align="center" prop="theCurrentAmplitude" />
       <el-table-column label="振幅" align="center" prop="dailySpread" />
-      <el-table-column label="前五" align="center" prop="dailySpread5" />
+      <el-table-column label="前五" width="430" align="center" prop="dailySpread5" />
     </el-table>
 
     <pagination
@@ -105,6 +111,9 @@ export default {
       if (this.clearTimeSet === null) { // 确保只创建一个定时器
         this.clearTimeSet = setInterval(() => this.getList(), 4000);
       }
+    },
+    refreshOne() { // 从服务端加载数据的函数
+        this.getList();
     },
     stop(){
       if (this.clearTimeSet !== null) {
