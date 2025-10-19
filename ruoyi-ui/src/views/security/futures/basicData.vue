@@ -42,7 +42,7 @@
 <!--            :value="dict.value"-->
 <!--          />-->
 <!--        </el-select>-->
-      </el-form-item>
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -92,10 +92,22 @@
           v-hasPermi="['security:futures:export']"
         >导出</el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="warning"
+          plain
+          icon="el-icon-download"
+          size="mini"
+          @click="crawl"
+          v-hasPermi="['security:futures:export']"
+        >更新</el-button>
+      </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="futuresList" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="主键" align="center" prop="id" />
       <el-table-column label="编码" align="center" prop="code" />
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="交易所-编码" align="center" prop="exchangeCode" />
@@ -173,7 +185,7 @@
 </template>
 
 <script>
-import { listFutures, getFutures, delFutures, addFutures, updateFutures } from "@/api/security/futures";
+import { listFutures, getFutures, delFutures, addFutures, updateFutures,crawl } from "@/api/security/futures";
 
 export default {
   name: "Futures",
@@ -282,6 +294,12 @@ export default {
         this.form = response.data;
         this.open = true;
         this.title = "修改证劵交易";
+      });
+    },
+    /** 更新按钮操作 */
+    crawl() {
+      crawl().then(response => {
+        this.$modal.msgSuccess("更新成功");
       });
     },
     /** 提交按钮 */

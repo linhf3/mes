@@ -102,8 +102,6 @@
     </el-row>
 
     <el-table v-loading="loading" :data="logList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
       <el-table-column label="编码" align="center" prop="code" />
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="振幅" align="center" prop="undulate" />

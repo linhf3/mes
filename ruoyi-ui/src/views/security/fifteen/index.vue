@@ -78,9 +78,8 @@
     </el-row>
 
     <el-table v-loading="loading" :data="fifteenList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
-      <el-table-column label="编码" align="center" prop="code" />
+<!--      <el-table-column label="主键" align="center" prop="id" />-->
+<!--      <el-table-column label="编码" align="center" prop="code" />-->
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="振幅" align="center" prop="points" />
       <el-table-column label="时间" align="center" prop="logDate" width="180">
