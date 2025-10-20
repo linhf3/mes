@@ -42,3 +42,11 @@ export function delFutures(id) {
     method: 'delete'
   })
 }
+
+// 删除证劵交易
+export function crawl() {
+  return request({
+    url: '/security/futures/crawl',
+    method: 'POST'
+  })
+}
