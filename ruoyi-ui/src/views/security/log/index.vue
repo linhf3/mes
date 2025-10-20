@@ -1,26 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="编码" prop="code">
-        <el-input
-          v-model="queryParams.code"
-          placeholder="请输入编码"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="名称" prop="name">
         <el-input
           v-model="queryParams.name"
           placeholder="请输入名称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="振幅" prop="undulate">
-        <el-input
-          v-model="queryParams.undulate"
-          placeholder="请输入振幅"
           clearable
           @keyup.enter.native="handleQuery"
         />
