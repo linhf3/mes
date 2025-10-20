@@ -317,6 +317,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
                 .sorted(
                         comparing(FutureVo::getNum, nullsLast(Integer::compareTo))  // ① 第一关键字：num 倒序
                                 .thenComparing(FutureVo::getTheCurrentAmplitude)                 // ② 第二关键字：振幅
+                                .thenComparing(FutureVo::getDailySpread)
                 )
                 .collect(Collectors.toList());
         long endTime = System.currentTimeMillis();

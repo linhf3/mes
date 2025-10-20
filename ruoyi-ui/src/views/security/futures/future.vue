@@ -34,7 +34,7 @@
       <el-table-column label="偏离" align="center" prop="proportion" />
       <el-table-column label="排名" align="center" prop="num">
         <template #default="{ row }">
-          {{ row.num === 0 ? '-' : row.num }}
+          {{ row.num === 21 || row.num == 100 ? '-' : row.num }}
         </template>
       </el-table-column>
       <el-table-column label="振幅" align="center" prop="dailySpread" />
@@ -93,7 +93,7 @@ export default {
     },
 
     rowClassName({ row }) {
-      if (row.num <= 0){
+      if (row.num >= 100){
         return '';
       }else if (row.num <= 5) {
         return 'row-red';
