@@ -19,6 +19,7 @@ import com.ruoyi.security.algorithm.CoreAlgorithmContet;
 import com.ruoyi.security.domain.TbFluctuationLog;
 import com.ruoyi.security.domain.TbSecuritiesHistory;
 import com.ruoyi.security.domain.TbSinaFifteen;
+import com.ruoyi.security.loader.SecurityLoader;
 import com.ruoyi.security.service.ITbFluctuationLogService;
 import com.ruoyi.security.service.ITbSecuritiesHistoryService;
 import com.ruoyi.security.service.ITbSinaFifteenService;
@@ -79,6 +80,9 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
 
     @Autowired
     private ITbSinaFifteenService iTbSinaFifteenService;
+
+    @Autowired
+    private SecurityLoader securityLoader;
 
     ReentrantLock lock = new ReentrantLock();
 
@@ -347,7 +351,7 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
             // 定义格式化模式
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M_d");
             // 格式化日期
-            String formattedDate = currentDate.format(formatter);
+            String formattedDate = currentDate.minusDays(1).format(formatter);
             Map urlMap = new HashMap<>();
             DateTimeFormatter formatterD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             for (TbSecuritiesData tbSecuritiesData:tbSecuritiesSinaDataList){
@@ -386,6 +390,8 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
                 iTbFluctuationLogService.insertTbFluctuationLogList(list);
                 Thread.sleep(20000);
             }
+            //更新redis
+            securityLoader.run();
         }catch (Exception e){
             log.error("同步异常");
         }

@@ -111,9 +111,9 @@
       <el-table-column label="编码" align="center" prop="code" />
       <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="交易所-编码" align="center" prop="exchangeCode" />
-      <el-table-column label="偏离值" align="center" prop="deviation" />
-      <el-table-column label="波动" align="center" prop="undulate" />
-      <el-table-column label="类型" align="center" prop="type" />
+<!--      <el-table-column label="偏离值" align="center" prop="deviation" />-->
+<!--      <el-table-column label="波动" align="center" prop="undulate" />-->
+<!--      <el-table-column label="类型" align="center" prop="type" />-->
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
