@@ -32,6 +32,10 @@ public class MoneyController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 东方财富实时数据
+     * @return
+     */
     @PostMapping("/findListByPoints")
     public TableDataInfo findListByPoints(){
         List<FutureVo> list = tbSecuritiesDataService.findListByPoints();
