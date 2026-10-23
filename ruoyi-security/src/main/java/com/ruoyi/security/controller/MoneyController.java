@@ -42,6 +42,11 @@ public class MoneyController extends BaseController {
         return getDataTable(list);
     }
 
+    @GetMapping("/getQuheqihuoDataFromCom")
+    public boolean getQuheqihuoDataFromCom(){
+        return tbSecuritiesDataService.getQuheqihuoDataFromCom();
+    }
+
      @PostMapping("/updateFluctuationLog")
     public void updateFluctuationLog(){
         tbSecuritiesDataService.updateFluctuationLog();
