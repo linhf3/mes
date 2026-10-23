@@ -62,6 +62,14 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
+          type="warning"
+          plain
+          size="mini"
+          @click="getQuheqihuoDataFromCom"
+        >更新</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
           type="success"
           plain
           icon="el-icon-edit"
@@ -175,7 +183,7 @@
 </template>
 
 <script>
-import { listFutures, getFutures, delFutures, addFutures, updateFutures } from "@/api/security/futures";
+import { listFutures, getQuheqihuoDataFromCom, getFutures, delFutures, addFutures, updateFutures } from "@/api/security/futures";
 
 export default {
   name: "Futures",
@@ -235,6 +243,12 @@ export default {
     cancel() {
       this.open = false;
       this.reset();
+    },
+    /** 修改按钮操作 */
+    getQuheqihuoDataFromCom() {
+      getQuheqihuoDataFromCom().then(response => {
+       this.getList();
+      });
     },
     // 表单重置
     reset() {
