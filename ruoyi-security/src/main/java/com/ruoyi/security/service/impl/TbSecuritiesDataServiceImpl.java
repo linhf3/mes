@@ -505,6 +505,51 @@ public class TbSecuritiesDataServiceImpl implements ITbSecuritiesDataService
         return null;
     }
 
+    @Override
+    public boolean getQuheqihuoDataFromCom() {
+        HttpURLConnection conn = null;
+        BufferedReader reader = null;
+        try {
+            URL url = new URL("https://api.jijinhao.com/quoteCenter/realTime.htm?codes=JO_165668,JO_233734,JO_165809,JO_166029,JO_291841,JO_165822,JO_233664,JO_166093,JO_165874,JO_233677,JO_233760,JO_233773,JO_166016,JO_166055,JO_166132,JO_166171,JO_166145,JO_233690,JO_166210,JO_166158,JO_165887,JO_165796,JO_166184,JO_165990,JO_166003,JO_166119,JO_165835,JO_291821,JO_166249,JO_233747,JO_291828,JO_291854,JO_165694,JO_165770,JO_166257,JO_165732,JO_165757,JO_166080,JO_233708,JO_165848,JO_165861,JO_165900,JO_165925,JO_165951,JO_166042,JO_165964,JO_165938,JO_166106,JO_166197,JO_291867,JO_165655,JO_165629,JO_165642,JO_344228,JO_165616,JO_165590,JO_165603,JO_291808,JO_165681,JO_165977,JO_165719,JO_233721,JO_165783,JO_166223,JO_166236,JO_322422,JO_335884,JO_336104,JO_336117,JO_336321,JO_336611,JO_336625,JO_343068,JO_92270,JO_92268,JO_92266,JO_92264,JO_92262,JO_92260,JO_12553,JO_12552,JO_92232,JO_92233,JO_92230,JO_92229,JO_50814,JO_42634,JO_42638,JO_42660,JO_42657,JO_42653,JO_321453,JO_321455,JO_321465,JO_321466,JO_42625,JO_52670,JO_52678,JO_42632,JO_56044,JO_338490,JO_338504,JO_338518,JO_338532,JO_338546,JO_338562,JO_338728,JO_338594,JO_50771,JO_50797,JO_50842,JO_50780,JO_50789,JO_50848,JO_108893,JO_108878,JO_343878,JO_346070,JO_347000,JO_347231,JO_347500,JO_348610,JO_348624&_="+System.currentTimeMillis());
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(CONNECT_TIMEOUT);
+            conn.setReadTimeout(READ_TIMEOUT);
+
+            // ===== 请求头 =====
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+                            "(KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36");
+            conn.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.9");
+            conn.setRequestProperty("Referer", "https://www.quheqihuo.com/quote/zhuli.html");
+            conn.setRequestProperty("sec-ch-ua",
+                    "\"Google Chrome\";v=\"153\", \"Not_A Brand\";v=\"8\", \"Chromium\";v=\"153\"");
+            conn.setRequestProperty("sec-ch-ua-mobile", "?0");
+
+            int code = conn.getResponseCode();
+            System.out.println("Content-Length=" + conn.getHeaderField("Content-Length"));
+            System.out.println("Content-Encoding=" + conn.getHeaderField("Content-Encoding"));
+            InputStream in = (code >= 200 && code < 300)
+                    ? conn.getInputStream()
+                    : conn.getErrorStream();
+
+            reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            log.info("返回值：" + sb.toString());
+        } catch (Exception e) {
+            throw new RuntimeException("HTTP GET 请求失败: ", e);
+        } finally {
+            closeQuietly(reader);
+            if (conn != null) conn.disconnect();
+        }
+        return true;
+    }
+
     @Async("taskExecutor")
     @Override
     public void logSina15(String flag) throws InterruptedException {
