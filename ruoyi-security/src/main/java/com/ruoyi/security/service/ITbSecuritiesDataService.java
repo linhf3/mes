@@ -95,4 +95,6 @@ public interface ITbSecuritiesDataService
 
     void logSina15(String flag) throws InterruptedException;
 
+    boolean getQuheqihuoDataFromCom();
+
 }
