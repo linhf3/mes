@@ -17,6 +17,14 @@ export function getFutures(id) {
   })
 }
 
+// 更新数据
+export function getQuheqihuoDataFromCom() {
+  return request({
+    url: '/money/getQuheqihuoDataFromCom',
+    method: 'get'
+  })
+}
+
 // 新增证劵交易
 export function addFutures(data) {
   return request({
